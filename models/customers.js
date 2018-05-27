@@ -2,29 +2,22 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 require('mongoose-currency').loadType(mongoose);
 var Currency = mongoose.Types.Currency;
+var pasportLocalMongoose = require('passport-local-mongoose');
 
 
 var customerSchema = new Schema({
     name: {
         type: String,
-        required: true,
         unique : true
     },
     type: {
         type: String,
-        required: true
-    },
-    address: {
-        type: String,
-        required: true
     },
     contactPersonName: {
         type: String,
-        required: true
     },
     phone: {
         type: String,
-        required: true
     },
     allocatedLimit: {
         type: Currency,
@@ -35,15 +28,26 @@ var customerSchema = new Schema({
         min: 0
     },
     fuelStationIds: {
-        type: String,
+        type: Array,
     },
     status: {
         type: String,
 
+    },
+    address: {
+        city: String,
+        street: String,
+        number: String
+    },
+    admin:   {
+        type: Boolean,
+        default: false
     }
 }, {
         timestamps: true
     });
+
+customerSchema.plugin(pasportLocalMongoose);
 
 var Customers = mongoose.model('Customer', customerSchema);
 

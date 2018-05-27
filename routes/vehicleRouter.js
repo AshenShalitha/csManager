@@ -15,6 +15,7 @@ vehicleRouter.route('/')
         res.statusCode=200;
         res.setHeader('Content-Type', 'application/json');
         res.json(vehicles);
+        console.log(req.query);
     }, (err)=>next(err))
     .catch((err)=>next(err));
 })

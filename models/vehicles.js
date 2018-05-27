@@ -10,7 +10,8 @@ vehicleSchema = new Schema({
     },
     vehicleNumber : {
         type : String,
-        required : true
+        required : true,
+        unique : true
     },
     ownersId : {
         type : String,
