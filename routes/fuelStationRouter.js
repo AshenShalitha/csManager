@@ -60,7 +60,7 @@ fuelStationRouter.route('/getFSNamesAndCity')
 
 //fuelStation by id -----------------------------------------------------------------------------------------
 fuelStationRouter.route('/:fuelStationId')
-.get((req,res,next) => {
+.get(authenticate.verifyUser,(req,res,next) => {
     FuelStations.findById(req.params.fuelStationId)
     .then((fuelStation) => {
         res.statusCode = 200;

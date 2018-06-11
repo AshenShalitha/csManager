@@ -8,7 +8,7 @@ var pasportLocalMongoose = require('passport-local-mongoose');
 var customerSchema = new Schema({
     name: {
         type: String,
-        unique : true
+        unique: false
     },
     type: {
         type: String,

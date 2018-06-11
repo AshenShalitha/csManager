@@ -44,6 +44,19 @@ customerRouter.route('/')
             .catch((err) => next(err));
     });
 
+
+    //other routes
+    customerRouter.route('/getUserByUsername')
+    .post((req,res,next)=>{
+        Customers.find({username:req.body.username},{name:1})
+        .then((customer)=>{
+            res.statusCode=200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(customer);
+        },(err)=>next(err))
+        .catch((err)=>next(err));
+    })
+
 //authenticate--------------------------------------------------------
 customerRouter.post('/signup', (req, res, next) => {
     Customers.register(new Customers({
