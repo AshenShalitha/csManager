@@ -14,9 +14,13 @@ var fuelStationSchema = new Schema({
         type : String,
         required : true
     },
-    customers : {
-        type : Array
-    },
+    customers: [{
+        status: String,
+        customerId : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref: 'Customer'
+        }
+    }],
     address: {
         city: String,
         street: String,

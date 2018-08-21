@@ -13,6 +13,7 @@ customerRouter.use(bodyParser.json());
 customerRouter.route('/')
     .get((req, res, next) => {
         Customers.find({})
+        .populate('fuelStationIds.fsid')
             .then((customers) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -45,50 +46,80 @@ customerRouter.route('/')
     });
 
 
-    //other routes
-    customerRouter.route('/getUserByUsername')
-    .post((req,res,next)=>{
-        Customers.find({username:req.body.username},{name:1})
-        .then((customer)=>{
-            res.statusCode=200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(customer);
-        },(err)=>next(err))
-        .catch((err)=>next(err));
+//other routes
+customerRouter.route('/getUserByUsername')
+    .post((req, res, next) => {
+        Customers.find({ username: req.body.username }, { name: 1 })
+            .then((customer) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(customer);
+            }, (err) => next(err))
+            .catch((err) => next(err));
     })
+
+customerRouter.route('/addFillingStation/:customerId')
+    .post((req,res,next)=>{
+        console.log(req.body)
+         var fuelStation = {status:req.body.status,fsid: req.body.fsid}
+         Customers.findByIdAndUpdate(req.params.customerId, {
+              $addToSet: {fuelStationIds: fuelStation}
+        },{ new: true })
+        .then((resp)=>{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({success:true});
+        }, (err) => next(err))
+        .catch((err) => next(err));
+    })
+
+
+
 
 //authenticate--------------------------------------------------------
 customerRouter.post('/signup', (req, res, next) => {
-    Customers.register(new Customers({
-        username: req.body.username,
-        name: req.body.name,
-        type: req.body.type,
-        contactPersonName: req.body.contactPersonName,
-        phone: req.body.phone,
-        address: req.body.address
-    }),
+    Customers.register(new Customers({ username: req.body.username }),
         req.body.password, (err, customer) => {
             if (err) {
-                res.statusCode = 500;
+                res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ err: err });
+                res.json({ success: false, status: 'Username is alredy taken!' });
             }
             else {
-                passport.authenticate('local')(req, res, () => {
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json({ success: true, status: 'Registration Successful!' });
+                if (req.body.name)
+                    customer.name = req.body.name;
+                if (req.body.type)
+                    customer.type = req.body.type;
+                if (req.body.contactPersonName)
+                    customer.contactPersonName = req.body.contactPersonName;
+                if (req.body.phone)
+                    customer.phone = req.body.phone;
+                if (req.body.address)
+                    customer.address = req.body.address;
+                customer.save((err, customer) => {
+                    if (err) {
+                        res.statusCode = 500;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({ err: err });
+                        return;
+                    }
+                    passport.authenticate('local')(req, res, () => {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({ success: true, status: 'Registration Successful!' });
+
+                    })
                 });
             }
         });
 });
 
 customerRouter.post('/login', passport.authenticate('local'), (req, res) => {
-    var token = authenticate.getToken({_id: req.user._id});
+    var token = authenticate.getToken({ _id: req.user._id });
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json({success: true, token: token, status: 'You are successfully logged in!'});
-  });
+    res.json({ success: true, token: token, status: 'You are successfully logged in!' });
+});
 
 customerRouter.get('/logout', (req, res) => {
     req.logout();
@@ -100,6 +131,7 @@ customerRouter.get('/logout', (req, res) => {
 customerRouter.route('/:customerId')
     .get((req, res, next) => {
         Customers.findById(req.params.customerId)
+        .populate('fuelStationIds.fsid')
             .then((customer) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');

@@ -10,6 +10,9 @@ const purchaseOrderRouter = express.Router();
 purchaseOrderRouter.route('/')
 .get((req,res,next)=>{
     PurchaseOrder.find({})
+    .populate('vehicleId')
+    .populate('fuelStationId')
+    .populate('customerId')
     .then((purchaseOrder)=>{
         res.statusCode=200;
         res.setHeader('Content-Type', 'application/json');
@@ -46,6 +49,9 @@ purchaseOrderRouter.route('/')
 purchaseOrderRouter.route('/:purchaseOrderId')
 .get((req,res,next) => {
     PurchaseOrder.findById(req.params.purchaseOrderId)
+    .populate('vehicleId')
+    .populate('fuelStationId')
+    .populate('customerId')
     .then((purchaseOrder) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');

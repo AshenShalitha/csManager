@@ -27,13 +27,14 @@ var customerSchema = new Schema({
         type: Currency,
         min: 0
     },
-    fuelStationIds: {
-        type: Array,
-    },
-    status: {
-        type: String,
-
-    },
+    fuelStationIds: [{
+        status: String,
+        fsid : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref: 'FuelStation'
+        },
+        _id : false
+    }],
     address: {
         city: String,
         street: String,

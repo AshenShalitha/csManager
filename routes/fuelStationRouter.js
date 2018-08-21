@@ -10,8 +10,9 @@ fuelStationRouter.use(bodyParser.json());
 
 //all records-------------------------------------------------------------------------------------------------
 fuelStationRouter.route('/')
-.get(authenticate.verifyUser,(req,res,next)=>{
+.get((req,res,next)=>{
     FuelStations.find({})
+    .populate('customers.customerId')
     .then((fuelStations)=>{
         res.statusCode=200;
         res.setHeader('Content-Type', 'application/json');
@@ -46,7 +47,7 @@ fuelStationRouter.route('/')
 //custom-----------------------------------------------------------------------------------------------------
 
 fuelStationRouter.route('/getFSNamesAndCity')
-.get((req,res,next)=>{
+.get(authenticate.verifyUser,(req,res,next)=>{
     FuelStations.find({} , {name:1, "address.city":1}).sort({"address.city":1})
     .then((fuelStations)=>{
         res.statusCode=200;
@@ -56,12 +57,25 @@ fuelStationRouter.route('/getFSNamesAndCity')
     .catch((err)=>next(err));
 });
 
+fuelStationRouter.route('/addFillingStation')
+    .put((req,res,next)=>{
+        FuelStations.findByIdAndUpdate(req.body.fuelStationId, {
+            $addToSet: req.body
+        },{ new: true })
+        .then((resp)=>{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({success:true});
+        }, (err) => next(err))
+        .catch((err) => next(err));
+    })
 
 
 //fuelStation by id -----------------------------------------------------------------------------------------
 fuelStationRouter.route('/:fuelStationId')
 .get(authenticate.verifyUser,(req,res,next) => {
     FuelStations.findById(req.params.fuelStationId)
+    .populate('customers.customerId')
     .then((fuelStation) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');

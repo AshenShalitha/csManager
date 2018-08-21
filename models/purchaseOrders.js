@@ -5,8 +5,8 @@ var Currency = mongoose.Types.Currency;
 
 purchaseOrderSchema = new Schema({
     vehicleId : {
-        type : String,
-        required : true
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Vehicle'
     },
     fuelType : {
         type : String,
@@ -29,10 +29,12 @@ purchaseOrderSchema = new Schema({
         type : String
     },
     fuelStationId : {
-        type : String
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'FuelStation'
     },
     customerId : {
-        type : String
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Customer'
     }
 }, {
     timestamps : true

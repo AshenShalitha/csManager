@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 require('mongoose-currency').loadType(mongoose);
 var Currency = mongoose.Types.Currency;
 
+
 vehicleSchema = new Schema({
     vehicleName : {
         type : String,
@@ -14,8 +15,8 @@ vehicleSchema = new Schema({
         unique : true
     },
     ownersId : {
-        type : String,
-        required : true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Customer'
     },
     addedBy : {
         type : String,
