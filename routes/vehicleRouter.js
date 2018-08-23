@@ -10,7 +10,7 @@ vehicleRouter.use(bodyParser.json());
 
 //all vehicles
 vehicleRouter.route('/')
-.get(authenticate.verifyUser,(req,res,next)=>{
+.get((req,res,next)=>{
     Vehicles.find({})
     .populate('ownersId')
     .then((vehicles)=>{
@@ -21,22 +21,22 @@ vehicleRouter.route('/')
     }, (err)=>next(err))
     .catch((err)=>next(err));
 })
-.post(authenticate.verifyUser,(req,res,next)=>{
-    req.body.ownersId = req.user._id;
+.post((req,res,next)=>{
+    // req.body.ownersId = req.user._id;
     Vehicles.create(req.body)
     .then((vehicle)=>{
         console.log('Vehicle Created', vehicle);
         res.statusCode=200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(vehicle);
+        res.json({ success: true, status: 'New vehicle added!' });
     },(err)=>next(err))
     .catch((err)=>next(err));
 })
-.put(authenticate.verifyUser,(req,res,next)=>{
+.put((req,res,next)=>{
     res.statusCode = 403;
     res.end('PUT operation not supported on /vehicles');
 })
-.delete(authenticate.verifyUser,(req,res,next)=>{
+.delete((req,res,next)=>{
     Vehicles.remove({})
     .then((resp)=>{
         res.statusCode=200;
@@ -46,9 +46,24 @@ vehicleRouter.route('/')
     .catch((err)=>next(err));
 });
 
+//other routes
+vehicleRouter.route('/vehiclesByOwnersId')
+.post((req,res,next)=>{
+    console.log(req.body)
+    Vehicles.find({ownersId:req.body.ownersId} , {vehicleName:1,vehicleNumber:1}).sort({createdAt:1})
+    .then((fuelStations)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(fuelStations);
+    },(err)=>next(err))
+    .catch((err)=>next(err));
+});
+
+
+
 //vehicle by id---------------------------------------------------------------------------------------------
 vehicleRouter.route('/:vehicleId')
-.get(authenticate.verifyUser,(req,res,next) => {
+.get((req,res,next) => {
     Vehicles.findById(req.params.vehicleId)
     .populate('ownersId')
     .then((vehicle) => {
@@ -58,11 +73,11 @@ vehicleRouter.route('/:vehicleId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.post(authenticate.verifyUser,(req, res, next) => {
+.post((req, res, next) => {
     res.statusCode = 403;
     res.end('POST operation not supported on /vehicles/'+ req.params.dishId);
 })
-.put(authenticate.verifyUser,(req, res, next) => {
+.put((req, res, next) => {
     Vehicles.findByIdAndUpdate(req.params.vehicleId, {
         $set: req.body
     }, { new: true })
@@ -73,7 +88,8 @@ vehicleRouter.route('/:vehicleId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.delete(authenticate.verifyUser,(req, res, next) => {
+.delete((req, res, next) => {
+    console.log(req.body)
     Vehicles.findByIdAndRemove(req.params.vehicleId)
     .then((resp) => {
         res.statusCode = 200;

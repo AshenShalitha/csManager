@@ -23,7 +23,7 @@ vehicleSchema = new Schema({
         required : true
     },
     allocatedLimit : {
-        type : Currency,
+        type : Number,
         min : 0
     }
 },{

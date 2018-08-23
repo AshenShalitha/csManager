@@ -73,6 +73,18 @@ customerRouter.route('/addFillingStation/:customerId')
         .catch((err) => next(err));
     })
 
+customerRouter.route('/viewSelectedFuelStations')
+    .post((req,res,next)=>{
+        var _id = req.body._id
+        Customers.findById(_id, { _id:0, fuelStationIds:1})
+        .populate('fuelStationIds.fsid')
+            .then((customer) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(customer);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
 
 
 
